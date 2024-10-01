@@ -15,3 +15,11 @@ app.get('/', (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+
+import postRoutes from './routes/postRoutes';
+import commentRoutes from './routes/commentRoutes';
+import likeRoutes from './routes/likeRoutes';
+
+app.use('/posts', postRoutes);
+app.use('/comments', commentRoutes);
+app.use('/likes', likeRoutes);
