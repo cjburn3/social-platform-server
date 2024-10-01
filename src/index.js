@@ -23,3 +23,8 @@ import likeRoutes from './routes/likeRoutes';
 app.use('/posts', postRoutes);
 app.use('/comments', commentRoutes);
 app.use('/likes', likeRoutes);
+
+app.use((err: any, req: Request, res: Response, next: Function) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+  });

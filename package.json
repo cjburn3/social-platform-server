@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "ts-node-dev src/index.ts"
     
+  "jest": {
+  "testEnvironment": "node"
+}
   "keywords": [],
   "author": "",
   "license": "ISC",
