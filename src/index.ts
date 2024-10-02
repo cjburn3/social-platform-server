@@ -1,5 +1,10 @@
+
+import 'dotenv/config';
+import { createClient } from '@supabase/supabase-js';
+
+const app = express();
+
 import express from 'express';
-import dotenv from 'dotenv';
 import postRoutes from './routes/postRoutes';
 import commentRoutes from './routes/commentRoutes';
 import likeRoutes from './routes/likeRoutes';
