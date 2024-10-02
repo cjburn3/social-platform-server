@@ -1,29 +1,18 @@
-
-import 'dotenv/config';
+import express from 'express';
+import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 
-const app = express();
-
-import express from 'express';
-import postRoutes from './routes/postRoutes';
-import commentRoutes from './routes/commentRoutes';
-import likeRoutes from './routes/likeRoutes';
-
 dotenv.config();
-const app = express();
-const port = process.env.PORT || 3000;
 
+const app = express();
 app.use(express.json());
 
-app.use('/posts', postRoutes);
-app.use('/comments', commentRoutes);
-app.use('/likes', likeRoutes);
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_KEY || '';
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
+app.use('/posts', require('./routes/postRoutes'));
+app.use('/comments', require('./routes/commentRoutes'));
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,15 +1,30 @@
-import express, { Request, Response } from 'express';
+import { Router } from 'express';
+import { supabase } from '../index';
 
-const router = express.Router();
+const router = Router();
 
-router.post('/posts', (req: Request, res: Response) => {
-     const content = req.body.content; 
+// POST /posts - Create a new post
+router.post('/', async (req, res) => {
+  const { content } = req.body;
 
-    if (!content || content.trim() === '') {
-        return res.status(400).json({ error: 'Content cannot be empty' }); // Respond with an error
-    }
+  if (!content) {
+    return res.status(400).json({ error: 'Content is required' });
+  }
 
-    res.status(201).json({ message: 'Post created successfully', content }); 
+  const { data, error } = await supabase.from('Post').insert([{ content }]);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.status(201).json(data);
+});
+
+// GET /posts - Retrieve all posts
+router.get('/', async (req, res) => {
+  const { data, error } = await supabase.from('Post').select('*').order('timestamp', { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.status(200).json(data);
 });
 
 export default router;
