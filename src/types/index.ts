@@ -6,14 +6,14 @@ export interface Post {
   
   export interface Comment {
     id: number;
-    PostID: number;
+    postID: number;
     content: string;
     timestamp: string;
   }
   
   export interface PostLike {
     id: number;
-    PostID: number;
-    CommentID?: number;
+    postID: number;
+    commentID?: number;
     timestamp: string;
   }
