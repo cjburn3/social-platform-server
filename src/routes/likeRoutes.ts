@@ -1,45 +1,36 @@
 import express, { Request, Response } from 'express';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../api/supabaseClient';
 
-const router = express.Router();
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!);
+export const likeRoutes = express.Router();
 
-router.post('/posts/:postId/likes', async (req: Request, res: Response) => {
-  const { postId } = req.params;
-
-  const { data: post, error: postError } = await supabase
-    .from('Post')
-    .select('id')
-    .eq('id', postId)
-    .single();
-
-  if (postError) return res.status(404).json({ error: 'Post not found' });
+// POST /posts/:id/likes - Add a like to a post
+likeRoutes.post('/:id/likes', async (req: Request, res: Response) => {
+  const postId = req.params.id;
 
   const { data, error } = await supabase
     .from('PostLike')
-    .insert([{ PostID: postId }]);
+    .insert([{ postID: postId }])
+    .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) {
+    return res.status(500).json({ message: error.message });
+  }
+
   res.status(201).json(data);
 });
 
-router.post('/comments/:commentId/likes', async (req: Request, res: Response) => {
-  const { commentId } = req.params;
-
-  const { data: comment, error: commentError } = await supabase
-    .from('comment')
-    .select('id')
-    .eq('id', commentId)
-    .single();
-
-  if (commentError) return res.status(404).json({ error: 'Comment not found' });
+// POST /comments/:id/likes - Add a like to a comment
+likeRoutes.post('/comments/:id/likes', async (req: Request, res: Response) => {
+  const commentId = req.params.id;
 
   const { data, error } = await supabase
     .from('PostLike')
-    .insert([{ CommentID: commentId }]);
+    .insert([{ commentID: commentId }])
+    .single();
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) {
+    return res.status(500).json({ message: error.message });
+  }
+
   res.status(201).json(data);
 });
-
-export default router;
