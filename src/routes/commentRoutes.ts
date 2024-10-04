@@ -1,22 +1,24 @@
 import express, { Request, Response } from 'express';
-import { supabase } from '../api/supabaseClient';
-import { validateContent } from '../middleware/validation';
+import { supabase } from '../index';
+import { validateComment } from '../middleware/validation';
 
-export const commentRoutes = express.Router();
+const router = express.Router();
 
-// POST /posts/:id/comments - Add a comment to a post
-commentRoutes.post('/:id/comments', validateContent, async (req: Request, res: Response) => {
-  const postId = req.params.id;
+// POST /posts/:id/comments: Add a comment to a specific post
+router.post('/:id/comments', validateComment, async (req: Request, res: Response) => {
+  const { id } = req.params;
   const { content } = req.body;
 
   const { data, error } = await supabase
-    .from('Comment')
-    .insert([{ postID: postId, content }])
+    .from('comment')
+    .insert([{ PostID: id, content }])
     .single();
 
   if (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(400).json({ error: error.message });
   }
 
-  res.status(201).json(data);
+  return res.status(201).json(data);
 });
+
+export default router;
