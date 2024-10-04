@@ -1,35 +1,30 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { supabase } from '../supabaseClient';
+import express from 'express';
+import { supabase } from '../index'; // Import the Supabase client
 
 const router = express.Router();
 
-// POST /posts/:id/likes - Add a like to a post
-router.post('/:id/likes', async (req: Request, res: Response, next: NextFunction) => {
-  const postId = req.params.id;
+// Add a like to a post
+router.post('/:id/likes', async (req, res) => {
+    const { id } = req.params;
 
-  try {
-    const { data: postExists, error: postError } = await supabase
-      .from('Post')
-      .select('id')
-      .eq('id', postId);
+    const { error } = await supabase
+        .from('PostLike')
+        .insert([{ PostID: id }]);
 
-    if (postError) throw postError;
+    if (error) return res.status(400).json({ error: error.message });
+    res.status(201).send('Like added');
+});
 
-    if (!postExists || postExists.length === 0) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
+// Add a like to a comment
+router.post('/comments/:id/likes', async (req, res) => {
+    const { id } = req.params;
 
-    const { data, error } = await supabase
-      .from('PostLike')
-      .insert({ PostID: postId })
-      .select();
+    const { error } = await supabase
+        .from('PostLike')
+        .insert([{ CommentID: id }]);
 
-    if (error) throw error;
-
-    return res.status(201).json(data);
-  } catch (err) {
-    next(err);
-  }
+    if (error) return res.status(400).json({ error: error.message });
+    res.status(201).send('Comment liked');
 });
 
 export default router;

@@ -1,25 +1,12 @@
-import * as dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
-
-dotenv.config();
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Supabase URL and Key are required');
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 import express from 'express';
-import postRoutes from './routes/postRoutes';
+import postRoutes from '../api/postRoutes';
+import commentRoutes from '../api/commentRoutes';
+import likeRoutes from '../api/likeRoutes';
 
-const app = express();
-app.use(express.json()); // To parse JSON request bodies
-app.use('/api', postRoutes); // Use the post routes
+const router = express.Router();
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+router.use('/posts', postRoutes);
+router.use('/posts', commentRoutes);
+router.use('/posts', likeRoutes);
+
+export default router;

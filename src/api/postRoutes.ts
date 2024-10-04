@@ -1,67 +1,42 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { supabase } from '../supabaseClient'; // Import the Supabase client you've configured
+import express from 'express';
+import { supabase } from '../index'; // Import the Supabase client
 
 const router = express.Router();
 
-// POST /posts - Create a new post
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
-  const { content } = req.body;
-  
-  // Validate input
-  if (!content || typeof content !== 'string') {
-    return res.status(400).json({ error: 'Content is required and should be a string' });
-  }
-
-  try {
+// Create a new post
+router.post('/', async (req, res) => {
+    const { content } = req.body;
     const { data, error } = await supabase
-      .from('Post')
-      .insert({ content })
-      .select();
-
-    if (error) throw error;
-
-    return res.status(201).json(data);
-  } catch (err) {
-    next(err);
-  }
+        .from('Post')
+        .insert([{ content }])
+        .single();
+    
+    if (error) return res.status(400).json({ error: error.message });
+    res.status(201).json(data);
 });
 
-// GET /posts - Retrieve all posts
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  try {
+// Get all posts
+router.get('/', async (req, res) => {
     const { data, error } = await supabase
-      .from('Post')
-      .select('*, comment(*), PostLike(*)')
-      .order('timestamp', { ascending: false });
-
-    if (error) throw error;
-
-    return res.status(200).json(data);
-  } catch (err) {
-    next(err);
-  }
+        .from('Post')
+        .select('*')
+        .order('timestamp', { ascending: false });
+    
+    if (error) return res.status(400).json({ error: error.message });
+    res.status(200).json(data);
 });
 
-// GET /posts/:id - Retrieve a specific post by its id
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  const postId = req.params.id;
-
-  try {
+// Get a post by ID
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
     const { data, error } = await supabase
-      .from('Post')
-      .select('*, comment(*), PostLike(*)')
-      .eq('id', postId);
+        .from('Post')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    if (error) throw error;
-
-    if (!data || data.length === 0) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
-    return res.status(200).json(data);
-  } catch (err) {
-    next(err);
-  }
+    if (error) return res.status(404).json({ error: 'Post not found' });
+    res.status(200).json(data);
 });
 
 export default router;
