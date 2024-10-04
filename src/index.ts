@@ -1,16 +1,20 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { postRoutes } from './routes/postRoutes';
-import { commentRoutes } from './routes/commentRoutes';
-import { likeRoutes } from './routes/likeRoutes';
-import dotenv from 'dotenv';
+import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
+import postRoutes from './routes/postRoutes';
+import commentRoutes from './routes/commentRoutes';
+import likeRoutes from './routes/likeRoutes';
 
-// Initialize environment variables
-dotenv.config();
-
-// Create Express app
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON bodies
+// Supabase client setup
+const supabaseUrl = process.env.SUPABASE_URL as string;
+const supabaseKey = process.env.SUPABASE_KEY as string;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 
 // Routes
@@ -21,11 +25,12 @@ app.use('/likes', likeRoutes);
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Internal Server Error' });
+  res.status(500).send('Something broke!');
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+export { supabase };
